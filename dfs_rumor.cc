@@ -30,6 +30,7 @@ void read_data(vector<pair<int, int>> &cost, vector<vector<pair<int, int>>>  &fr
     for(int i=1;i<=n;i++){
         cin>>value;
         cost[i]=make_pair(i, value);
+        friends[i].push_back(make_pair(i, value));
     }
     //rumors free for friends
     int f1,f2;
@@ -40,23 +41,14 @@ void read_data(vector<pair<int, int>> &cost, vector<vector<pair<int, int>>>  &fr
     }
 }
 
-void dfs(vector<pair<int, int>> &cost,vector<vector<pair<int, int>>> &friends,vector<bool> &vst, int cur, int &result){
+void dfs(vector<pair<int, int>> &cost,vector<vector<pair<int, int>>> &friends,vector<bool> &vst, int cur){
     if (!vst[cur]){
         return;
     }
-
     vst[cur]=false;
-    result +=cost[cur].second;
-
-    cout<<"cur: "<<cur<<" ,result: "<<result<<endl;
-
     for(int i=0;i<friends[cur].size();i++){
         int nxt = friends[cur][i].first;
-        if(vst[nxt]){
-            vst[nxt]=false;
-            cout<<"**"<<nxt<<endl;
-            dfs(cost, friends, vst, nxt, result);
-        }
+        dfs(cost, friends, vst, nxt);
     }
 
 }
@@ -66,20 +58,19 @@ int main(){
     vector<vector<pair<int, int>>> friends;
     read_data(cost, friends);
 
-    //show(cost, friends);
-    //sort cost
     sort(cost.begin(), cost.end(), [](auto &left, auto &right) {
         return left.second < right.second;
     });
-    cout<<"--------------"<<endl;
-    show(cost, friends);
+    //cout<<"--------------"<<endl;
+    //show(cost, friends);
 
     vector<bool> vst(cost.size(),true);
-    int result=0;
+    long long int result=0;
     for(int i=1;i<cost.size();i++){
-        dfs(cost, friends, vst, cost[i].first, result);
+        if(vst[cost[i].first]){
+            result+=cost[i].second;
+        }
+        dfs(cost, friends, vst, cost[i].first);
     }
     cout<<result<<endl;
-
-    //int cost=dfs(cost,vst);
 }
