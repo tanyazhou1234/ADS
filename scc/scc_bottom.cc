@@ -2,7 +2,6 @@
 #include <vector>
 #include <stack>
 #include <algorithm>
-#include <queue>
 
 using namespace std;
 
@@ -35,7 +34,6 @@ class SccFinder
     vector<int> lowlink, dfn;
     stack<int> s;
     int current_time;
-    priority_queue<int, vector<int>, greater<int>> bottom;
 
 public:
     SccFinder(int vertice)
@@ -45,6 +43,36 @@ public:
         lowlink.resize(vertice + 1, -1);
         dfn.resize(vertice + 1, -1);
         current_time = 1;
+    }
+
+    void show_bottom(vector<vector<int>> &graph)
+    {
+        vector<int> bottom;
+
+        for (int u = 1; u < graph.size(); u++)
+        {
+            bool is_bottom = true;
+            for (int i = 0; i < graph[u].size(); i++)
+            {
+                int v = graph[u][i];
+                // cout << u << " " << v << endl;
+                if (lowlink[u] != lowlink[v])
+                {
+                    is_bottom = false;
+                    // cout << "here" << endl;
+                    break;
+                }
+            }
+            if (is_bottom)
+            {
+                bottom.push_back(u);
+            }
+        }
+        for (int i = 0; i < bottom.size(); i++)
+        {
+            cout << bottom[i] << " ";
+        }
+        cout << endl;
     }
 
     void FindSCC(int u, vector<vector<int>> &graph)
@@ -57,8 +85,9 @@ public:
         dfn[u] = current_time;
         current_time++;
 
-        for (auto v : graph[u])
+        for (int i = 0; i < graph[u].size(); i++)
         {
+            int v = graph[u][i];
             if (!vst[v])
             {
                 FindSCC(v, graph);
@@ -75,6 +104,7 @@ public:
         }
         if (lowlink[u] == dfn[u])
         {
+
             int cnt = 0;
             while (s.top() != u)
             {
@@ -82,19 +112,9 @@ public:
                 lowlink[top] = lowlink[u];
                 s.pop();
                 in_stack[top] = false;
-                bottom.push(top);
-                cnt++;
             }
             s.pop();
             in_stack[u] = false;
-            if (cnt != 0)
-            {
-                bottom.push(u);
-            }
-            else if (!graph[u].size())
-            {
-                bottom.push(u);
-            }
         }
     }
     void show_lowlink(int vertice)
@@ -104,16 +124,7 @@ public:
             cout << "node " << i << ": lowlink = " << lowlink[i] << endl;
         }
     }
-    void show_bottom()
-    {
-        // cout << "Bottom: " << endl;
-        while (!bottom.empty())
-        {
-            cout << bottom.top() << " ";
-            bottom.pop();
-        }
-        cout << endl;
-    }
+
     inline bool visited(int u)
     {
         return vst[u];
@@ -139,6 +150,6 @@ int main()
             scc.FindSCC(i, graph);
         }
         // scc.show_lowlink(vertice);
-        scc.show_bottom();
+        scc.show_bottom(graph);
     }
 }
